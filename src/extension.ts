@@ -28,6 +28,7 @@ import { tryStartDebugging } from './debugging/startDebugging';
 import { WelcomeWebview } from './webviews/WelcomeWebview';
 import { QuarkusConfig } from './QuarkusConfig';
 import { registerConfigurationUpdateCommand, registerOpenURICommand, CommandKind } from './lsp-commands';
+import { registerYamlSchemaSupport } from '../yaml-support/yaml-schema';
 
 let languageClient: LanguageClient;
 
@@ -59,6 +60,8 @@ export function activate(context: ExtensionContext) {
       }
     });
   });
+
+  registerYamlSchemaSupport();
 
   function bindRequest(request: string) {
     languageClient.onRequest(request, async (params: any) =>

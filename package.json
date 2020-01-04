@@ -37,6 +37,7 @@
     "onCommand:quarkusTools.welcome",
     "workspaceContains:**/src/main/resources/application.properties",
     "onLanguage:quarkus-properties",
+    "onLanguage:quarkus-yaml",
     "onLanguage:java"
   ],
   "main": "./dist/extension",
@@ -59,6 +60,15 @@
           "application.properties"
         ],
         "configuration": "./properties-support/language-configuration.json"
+      },
+      {
+        "id": "quarkus-yaml",
+        "aliases": [
+          "Quarkus yaml"
+        ],
+        "filenames": [
+          "application.yaml"
+        ]
       }
     ],
     "commands": [
