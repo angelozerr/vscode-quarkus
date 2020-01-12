@@ -23,13 +23,14 @@ import { QuarkusContext } from './QuarkusContext';
 import { addExtensionsWizard } from './addExtensions/addExtensionsWizard';
 import { createTerminateDebugListener } from './debugging/terminateProcess';
 import { generateProjectWizard } from './generateProject/generationWizard';
-import { prepareExecutable } from './languageServer/javaServerStarter';
+import { prepareMicroProfileExecutable, prepareQuteExecutable } from './languageServer/javaServerStarter';
 import { tryStartDebugging } from './debugging/startDebugging';
 import { WelcomeWebview } from './webviews/WelcomeWebview';
 import { QuarkusConfig } from './QuarkusConfig';
 import { registerConfigurationUpdateCommand, registerOpenURICommand, CommandKind } from './lsp-commands';
 
 let languageClient: LanguageClient;
+let quteLanguageClient: LanguageClient;
 
 export function activate(context: ExtensionContext) {
   QuarkusContext.setContext(context);
@@ -51,6 +52,16 @@ export function activate(context: ExtensionContext) {
      * Delegate notifications from Java JDT LS to the MicroProfile LS
      */
     bindNotification('microprofile/propertiesChanged');
+
+  }).catch((error) => {
+    window.showErrorMessage(error.message, error.label).then((selection) => {
+      if (error.label && error.label === selection && error.openUrl) {
+        commands.executeCommand('vscode.open', error.openUrl);
+      }
+    });
+  });
+
+  connectToQuteLS(context).then(() => {
 
   }).catch((error) => {
     window.showErrorMessage(error.message, error.label).then((selection) => {
@@ -155,7 +166,7 @@ function connectToLS(context: ExtensionContext) {
       }
     };
 
-    const serverOptions = prepareExecutable(requirements);
+    const serverOptions = prepareMicroProfileExecutable(requirements);
     languageClient = new LanguageClient('quarkus.tools', 'Quarkus Tools', serverOptions, clientOptions);
     context.subscriptions.push(languageClient.start());
     return languageClient.onReady();
@@ -170,6 +181,62 @@ function connectToLS(context: ExtensionContext) {
    *          }
    */
   function getQuarkusSettings(): JSON {
+    const configQuarkus = workspace.getConfiguration().get('quarkus');
+    let quarkus;
+    if (!configQuarkus) { // Set default preferences if not provided
+      const defaultValue =
+      {
+        quarkus: {
+
+        }
+      };
+      quarkus = defaultValue;
+    } else {
+      const x = JSON.stringify(configQuarkus); // configQuarkus is not a JSON type
+      quarkus = { quarkus : JSON.parse(x)};
+    }
+    return quarkus;
+  }
+}
+
+function connectToQuteLS(context: ExtensionContext) {
+  return requirements.resolveRequirements().then(requirements => {
+    const clientOptions: LanguageClientOptions = {
+      documentSelector: [
+        { scheme: 'file', language: 'html' }
+      ],
+      // wrap with key 'settings' so it can be handled same a DidChangeConfiguration
+      initializationOptions: {
+        settings: getQuteSettings()
+      },
+      synchronize: {
+        // preferences starting with these will trigger didChangeConfiguration
+        configurationSection: ['quarkus', '[quarkus]']
+      },
+      middleware: {
+        workspace: {
+          didChangeConfiguration: () => {
+            quteLanguageClient.sendNotification(DidChangeConfigurationNotification.type, { settings: getQuteSettings() });
+          }
+        }
+      }
+    };
+
+    const serverOptions = prepareQuteExecutable(requirements);
+    quteLanguageClient = new LanguageClient('qute', 'Qute Support', serverOptions, clientOptions);
+    context.subscriptions.push(quteLanguageClient.start());
+    return quteLanguageClient.onReady();
+  });
+
+  /**
+   * Returns a json object with key 'quarkus' and a json object value that
+   * holds all quarkus. settings.
+   *
+   * Returns: {
+   *            'quarkus': {...}
+   *          }
+   */
+  function getQuteSettings(): JSON {
     const configQuarkus = workspace.getConfiguration().get('quarkus');
     let quarkus;
     if (!configQuarkus) { // Set default preferences if not provided

@@ -8,22 +8,32 @@ const glob = require('glob');
 const DEBUG = startedInDebugMode();
 const DEBUG_PORT = 1064;
 const SERVER_NAME = 'com.redhat.microprofile.ls-uber.jar';
+const QUTE_DEBUG_PORT = 1065;
+const QUTE_SERVER_NAME = 'com.redhat.qute.ls-uber.jar';
 
-export function prepareExecutable(requirements: RequirementsData): Executable {
+export function prepareMicroProfileExecutable(requirements: RequirementsData): Executable {
+  return prepareExecutable(requirements, SERVER_NAME, DEBUG_PORT);
+}
+
+export function prepareQuteExecutable(requirements: RequirementsData): Executable {
+  return prepareExecutable(requirements, QUTE_SERVER_NAME, QUTE_DEBUG_PORT);
+}
+
+function prepareExecutable(requirements: RequirementsData, serverName: string, debugPort: number): Executable {
   const executable: Executable = Object.create(null);
   const options: ExecutableOptions = Object.create(null);
   options.env = process.env;
   options.stdio = 'pipe';
   executable.options = options;
   executable.command = path.resolve(requirements.java_home + '/bin/java');
-  executable.args = prepareParams();
+  executable.args = prepareParams(serverName, debugPort);
   return executable;
 }
 
-function prepareParams(): string[] {
+function prepareParams(serverName: string, debugPort: number): string[] {
   const params: string[] = [];
   if (DEBUG) {
-    params.push(`-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${DEBUG_PORT},quiet=y`);
+    params.push(`-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=${debugPort},quiet=y`);
     // suspend=y is the default. Use this form if you need to debug the server startup code:
     // params.push(`-agentlib:jdwp=transport=dt_socket,server=y,address=${DEBUG_PORT}`);
   }
@@ -37,7 +47,7 @@ function prepareParams(): string[] {
   }
   parseVMargs(params, vmargs);
   const serverHome: string = path.resolve(__dirname, '../server');
-  const launchersFound: Array<string> = glob.sync(`**/${SERVER_NAME}`, { cwd: serverHome });
+  const launchersFound: Array<string> = glob.sync(`**/${serverName}`, { cwd: serverHome });
   if (launchersFound.length) {
     params.push('-jar'); params.push(path.resolve(serverHome, launchersFound[0]));
   }

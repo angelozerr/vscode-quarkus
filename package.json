@@ -229,6 +229,7 @@
     "tslint": "./node_modules/.bin/tslint -p .",
     "build": "./node_modules/.bin/gulp build",
     "build-server": "./node_modules/.bin/gulp buildServer",
+    "build-qute": "./node_modules/.bin/gulp buildQuteServer",
     "build-ext": "./node_modules/.bin/gulp buildExtension"
   },
   "devDependencies": {

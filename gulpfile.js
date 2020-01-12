@@ -16,8 +16,10 @@ const rename = require('gulp-rename');
 const cp = require('child_process');
 
 const serverName = 'com.redhat.microprofile.ls-uber.jar';
-const extensions = ['com.redhat.microprofile.jdt.core', 'com.redhat.microprofile.jdt.quarkus'];
 const serverDir = '../quarkus-ls/microprofile.ls/com.redhat.microprofile.ls';
+const serverQuteName = 'com.redhat.qute.ls-uber.jar';
+const serverQuteDir = '../quarkus-ls/qute.ls/com.redhat.qute.ls';
+const extensions = ['com.redhat.microprofile.jdt.core', 'com.redhat.microprofile.jdt.quarkus'];
 const extensionDir = '../quarkus-ls/microprofile.jdt';
 
 gulp.task('buildServer', (done) => {
@@ -25,6 +27,13 @@ gulp.task('buildServer', (done) => {
   gulp.src(serverDir + '/target/' + serverName)
     .pipe(gulp.dest('./server'));
   done();
+});
+
+gulp.task('buildQuteServer', (done) => {
+	  cp.execSync(mvnw() + ' clean verify -DskipTests', { cwd: serverQuteDir , stdio: 'inherit' });
+	  gulp.src(serverQuteDir + '/target/' + serverQuteName)
+	    .pipe(gulp.dest('./server'));
+	  done();
 });
 
 gulp.task('buildExtension', (done) => {
@@ -37,7 +46,7 @@ gulp.task('buildExtension', (done) => {
   done();
 });
 
-gulp.task('build', gulp.series('buildServer', 'buildExtension'));
+gulp.task('build', gulp.series('buildServer', 'buildQuteServer', 'buildExtension'));
 
 function mvnw() {
 	return isWin() ? 'mvnw.cmd' : './mvnw';
