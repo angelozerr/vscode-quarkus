@@ -21,9 +21,7 @@ export function registerVSCodeQuteCommands(context: ExtensionContext) {
   registerQuteValidationToggleCommand(context);
   context.subscriptions.push(
     workspace.onDidOpenTextDocument((document) => {
-      if (!(document.uri.scheme === 'git')) {
         updateQuteLanguageId(context, document, true);
-      }
     })
   );
   // When extension is started, loop for each text documents which are opened to update their language ID.
@@ -244,18 +242,20 @@ const LANGUAGE_MAP = new Map<string, string>([
  * @param onExtensionLoad if the user manually changed the language id.
  */
  async function updateQuteLanguageId(context: ExtensionContext, document: TextDocument, onExtensionLoad: boolean) {
+  if (document.uri.scheme === 'git') {
+    return;
+  }
   const propertiesLanguageMismatch: QuteTemplateLanguageMismatch = QuteSettings.getQuteTemplatesLanguageMismatch();
   // Check if the setting is set to ignore or if the language ID is already set to Qute
   if (propertiesLanguageMismatch === QuteTemplateLanguageMismatch.ignore || document.languageId.startsWith('qute-')) {
     // Do nothing
     return;
   }
-  const fileName: string = path.basename(document.fileName);
-  if (document.fileName.includes(`resources${path.sep}templates${path.sep}`)) {
+  if (document.fileName.includes(`resources${path.sep}templates${path.sep}`) ||  (document.uri.scheme === 'jdt' && document.fileName.startsWith(`/templates`))) {
     for (const extension of LANGUAGE_MAP.keys()) {
       if (path.extname(document.fileName) === extension) {
         const quteLanguageId = LANGUAGE_MAP.get(extension);
-
+        const fileName: string = path.basename(document.fileName);
         tryToForceLanguageId(context, document, fileName, propertiesLanguageMismatch, quteLanguageId, onExtensionLoad, QuteSettings.QUTE_OVERRIDE_LANGUAGE_ID, QuteSettings.QUTE_TEMPLATES_LANGUAGE_MISMATCH);
         break;
       }
