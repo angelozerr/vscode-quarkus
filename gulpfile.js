@@ -27,6 +27,9 @@ const quteServer = 'com.redhat.qute.ls-uber.jar';
 const quteExtensionDir = '../quarkus-ls/qute.jdt';
 const quteExtension = 'com.redhat.qute.jdt';
 
+const quteDapDir = '../quarkus-ls/qute.dap/com.redhat.qute.dap'
+const quteDap = 'com.redhat.qute.dap-uber.jar';
+
 gulp.task('buildServer', (done) => {
   cp.execSync(mvnw() + ' clean verify -DskipTests', { cwd: quarkusServerExtDir , stdio: 'inherit' });
   gulp.src(quarkusServerExtDir + '/target/' + quarkusServerExt + '-!(*sources).jar')
@@ -62,7 +65,14 @@ gulp.task('buildQuteExtension', (done) => {
   done();
 });
 
-gulp.task('build', gulp.series('buildServer', 'buildExtension','buildQuteServer', 'buildQuteExtension'));
+gulp.task('buildQuteDap', (done) => {
+  cp.execSync(mvnw() + ' clean verify -DskipTests', { cwd: quteDapDir , stdio: 'inherit' });
+  gulp.src(quteDapDir + '/target/' + quteDap)
+    .pipe(gulp.dest('./server'));
+  done();
+});
+
+gulp.task('build', gulp.series('buildServer', 'buildExtension','buildQuteServer', 'buildQuteExtension', 'buildQuteDap'));
 
 function mvnw() {
 	return isWin() ? 'mvnw.cmd' : './mvnw';

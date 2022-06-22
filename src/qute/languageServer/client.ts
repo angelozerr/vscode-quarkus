@@ -2,18 +2,26 @@ import * as requirements from './requirements';
 
 import { DidChangeConfigurationNotification, LanguageClientOptions } from 'vscode-languageclient';
 import { LanguageClient } from 'vscode-languageclient/node';
-import { ExtensionContext, commands, workspace, window, ConfigurationTarget, languages } from 'vscode';
+import { ExtensionContext, commands, workspace, window, ConfigurationTarget, languages, debug } from 'vscode';
 import { prepareExecutable } from './javaServerStarter';
 import { registerQuteExecuteWorkspaceCommand, registerVSCodeQuteCommands, synchronizeQuteValidationButton } from '../commands/registerCommands';
 import { QuteClientCommandConstants } from '../commands/commandConstants';
 import { QuteSettings } from './settings';
 import { JavaExtensionAPI } from '../../extension';
 import { QuteInlayHintsProvider } from './inlayHintsProvider';
+import { QuteDebugAdapterDescriptorFactory } from '../debugAdapter/quteDebugAdapterDescriptorFactory';
+import { QuteInlineValuesProvider } from './inlayValuesProvider';
+
+const QUTE_DEBUG_ADAPTER_ID = 'quarkus.qute';
 
 export function connectToQuteLS(context: ExtensionContext, api: JavaExtensionAPI) {
   registerVSCodeQuteCommands(context);
 
   return requirements.resolveRequirements(api).then(requirements => {
+    // Create Qute DAP for debugging Qute template
+    debug.registerDebugAdapterDescriptorFactory(QUTE_DEBUG_ADAPTER_ID, new QuteDebugAdapterDescriptorFactory(requirements));
+
+    // Create Qute Language server
     const clientOptions: LanguageClientOptions = {
       documentSelector: [
         { scheme: 'file', language: 'qute-html' },
@@ -86,6 +94,20 @@ export function connectToQuteLS(context: ExtensionContext, api: JavaExtensionAPI
       bindQuteRequest('qute/java/documentLink');
       bindQuteNotification('qute/dataModelChanged');
 
+      quteLanguageClient.onRequest('qute/debug/resolveVariables', async (params: any) => {
+        const unresolvedVariables = []; //params.unresolvedVariables;
+        let resolvedVariables: any;
+        if (/*unresolvedVariables && unresolvedVariables.length &&*/ debug.activeDebugSession) {
+          const response = await debug.activeDebugSession.customRequest("resolveVariables", {
+            frameId: params.frameId,
+            variables: unresolvedVariables,
+          });
+          resolvedVariables = response?.variables;
+        }
+        return resolvedVariables;
+      }
+      );
+
       registerQuteExecuteWorkspaceCommand(context, quteLanguageClient);
       // Refresh the Qute context when editor tab has the focus
       context.subscriptions.push(
@@ -121,6 +143,10 @@ export function connectToQuteLS(context: ExtensionContext, api: JavaExtensionAPI
       const supportRegisterInlayHintsProvider = (languages as any).registerInlayHintsProvider;
       if (supportRegisterInlayHintsProvider) {
         context.subscriptions.push(languages.registerInlayHintsProvider(clientOptions.documentSelector, new QuteInlayHintsProvider(quteLanguageClient)));
+      }
+      const supportRegisterInlineValuesProvider = (languages as any).registerInlineValuesProvider;
+      if (supportRegisterInlineValuesProvider) {
+        context.subscriptions.push(languages.registerInlineValuesProvider(clientOptions.documentSelector, new QuteInlineValuesProvider(quteLanguageClient)));
       }
     });
   });

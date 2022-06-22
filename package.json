@@ -257,6 +257,11 @@
           "default": true,
           "markdownDescription": "Enable/disable Qute CodeLens. Default is `true`."
         },
+        "qute.inlineValue.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Enable/disable Qute Inline Value. Default is `true`."
+        },
         "qute.inlayHint.enabled": {
           "type": "boolean",
           "default": true,
@@ -397,6 +402,61 @@
         "scopeName": "grammar.qute",
         "path": "./language-support/qute/qute.tmLanguage.json"
       }
+    ],
+    "breakpoints": [
+      {
+        "language": "qute-html"
+      },
+      {
+        "language": "qute-json"
+      },
+      {
+        "language": "qute-yaml"
+      },
+      {
+        "language": "qute-txt"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "quarkus.qute",
+        "label": "Quarkus Qute Debug",
+        "languages": [
+          "qute-html",
+          "qute-json",
+          "qute-yaml",
+          "qute-txt"
+        ],
+        "configurationAttributes": {
+          "attach": {
+            "properties": {
+              "port": {
+                "type": "string",
+                "description": "Qute Remote debugger port."
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "quarkus.qute",
+            "request": "attach",
+            "name": "Attach Qute Debugger"
+          }
+        ],
+        "configurationSnippets": [
+          {
+            "label": "Qute: Attach Debugger",
+            "description": "Attach Qute Debugger",
+            "body": {
+              "name": "Attach Qute Debugger",
+              "type": "quarkus.qute",
+              "request": "attach",
+              "port": 7022
+            }
+          }
+        ]
+      }
     ]
   },
   "scripts": {
@@ -413,6 +473,7 @@
     "build-ext": "./node_modules/.bin/gulp buildExtension",
     "build-qute-server": "./node_modules/.bin/gulp buildQuteServer",
     "build-qute-ext": "./node_modules/.bin/gulp buildQuteExtension",
+    "build-qute-dap": "./node_modules/.bin/gulp buildQuteDap",
     "test-ui": "rm -rf out && npm run test-compile && npm run test-ui-run",
     "test-ui-run": "extest setup-and-run 'out/test/vscodeUiTest/suite/*.js' -u -e 'out/test/vscodeUiTest/extensions' -o src/test/vscodeUiTest/settings.json",
     "test-all": "npm test && npm run test-ui-run"
