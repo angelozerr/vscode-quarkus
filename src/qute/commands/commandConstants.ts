@@ -53,6 +53,12 @@ export namespace QuteClientCommandConstants {
   export const REFACTOR_SURROUND_WITH_CDATA = 'qute.refactor.surround.with.cdata';
 
   export const REFACTOR_SURROUND_WITH_SECTION = 'qute.refactor.surround.with.section';
+
+  /**
+  * Command to open Qute project diagram.
+  */
+  export const OPEN_QUTE_PROJECT_DIAGRAM = 'qute.open.project.diagram';
+
 }
 
 /**

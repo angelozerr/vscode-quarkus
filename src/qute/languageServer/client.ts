@@ -3,7 +3,7 @@ import { DidChangeConfigurationNotification, LanguageClientOptions } from 'vscod
 import { LanguageClient } from 'vscode-languageclient/node';
 import { JavaExtensionAPI } from '../../extension';
 import { QuteClientCommandConstants } from '../commands/commandConstants';
-import { registerQuteLSDependentCommands, registerVSCodeQuteCommands, synchronizeQuteValidationButton } from '../commands/registerCommands';
+import { registerQuteLSDependentCommands, registerQuteProjectDiagramCommands, registerVSCodeQuteCommands, synchronizeQuteValidationButton } from '../commands/registerCommands';
 import { prepareExecutable } from './quteServerStarter';
 import { resolveRequirements } from './requirements';
 import { QuteSettings } from './settings';
@@ -91,6 +91,8 @@ export async function connectToQuteLS(context: ExtensionContext, api: JavaExtens
   bindQuteNotification('qute/dataModelChanged');
 
   registerQuteLSDependentCommands(context, quteLanguageClient);
+  registerQuteProjectDiagramCommands(context, quteLanguageClient);
+
   // Refresh the Qute context when editor tab has the focus
   context.subscriptions.push(
     window.onDidChangeActiveTextEditor(async editor => {
@@ -121,6 +123,7 @@ export async function connectToQuteLS(context: ExtensionContext, api: JavaExtens
   }
   await setQuteValidationEnabledContext();
   await synchronizeQuteValidationButton(window.activeTextEditor);
+
   return quteLanguageClient;
 }
 

@@ -8,6 +8,7 @@ import { CancellationToken, ExecuteCommandParams, ExecuteCommandRequest, TextDoc
 import { LanguageClient } from "vscode-languageclient/node";
 import { tryToForceLanguageId } from '../../utils/languageMismatch';
 import { registerReferencesCommands, registerOpenUriCommand, registerConfigurationUpdateCommand, ConfigurationItemEditType, ConfigurationItemEdit } from '../../lsp-commands';
+import { QuteProjectDiagramProvider } from '../webviews/QuteProjectDiagramProvider';
 
 /**
  * Register custom vscode command for Qute support.
@@ -361,4 +362,12 @@ async function surroundWith(surroundWithType: SurroundWithKind, languageClient: 
     commands.executeCommand("editor.action.triggerSuggest");
   }
 
+}
+
+export function registerQuteProjectDiagramCommands(context: ExtensionContext, languageClient: LanguageClient) {
+  const diagramProvider = new QuteProjectDiagramProvider(context);
+  context.subscriptions.push(commands.registerCommand(QuteClientCommandConstants.OPEN_QUTE_PROJECT_DIAGRAM, async (projectUri : string) => {
+    const options = {title: 'YES!!!'};
+    diagramProvider.showWebview(null, options);
+  }));
 }

@@ -41,6 +41,7 @@
     "workspaceContains:**src/main/resources/META-INF/microprofile-config.properties",
     "workspaceContains:**/src/main/resources/application.yaml",
     "workspaceContains:**/src/main/resources/application.yml",
+    "workspaceContains:**/src/main/resources/templates",
     "onLanguage:microprofile-properties",
     "onLanguage:quarkus-properties",
     "onLanguage:java",
@@ -187,6 +188,10 @@
       {
         "command": "qute.refactor.surround.with.section",
         "title": "Qute: Surround with Section"
+      },
+      {
+        "command": "qute.open.project.diagram",
+        "title": "Qute: Open project diagram"
       }
     ],
     "configuration": {
@@ -363,6 +368,9 @@
         {
           "command": "qute.refactor.surround.with.section",
           "when": "quarkusProjectExistsOrLightWeight && editorLangIdSupportsQute && QuteLSReady"
+        },
+        {
+          "command": "qute.open.project.diagram"
         }
       ],
       "editor/title": [
@@ -440,6 +448,7 @@
     "preinstall": "npx npm-force-resolutions",
     "vscode:prepublish": "webpack --mode production",
     "compile": "webpack --mode none",
+    "compile:views": "webpack --mode none --config scripts/webpack.config.js",
     "watch": "webpack --mode development --watch",
     "test-compile": "tsc -p ./",
     "pretest": "npm run test-compile",
@@ -460,6 +469,7 @@
   "devDependencies": {
     "@types/chai": "^4.2.3",
     "@types/chai-fs": "^2.0.2",
+    "@types/d3": "^7.4.0",
     "@types/ejs": "^3.0.5",
     "@types/fs-extra": "^7.0.0",
     "@types/js-yaml": "^4.0.0",
@@ -485,7 +495,7 @@
     "mocha": "^9.2.2",
     "pom-parser": "^1.2.0",
     "ts-loader": "^9.4.2",
-    "typescript": "^4.1.0",
+    "typescript": "^4.9.5",
     "vscode-extension-tester": "^4.2.5",
     "vscode-extension-tester-native": "^3.0.0",
     "vscode-test": "^1.2.3",
@@ -494,6 +504,7 @@
   },
   "dependencies": {
     "@redhat-developer/vscode-redhat-telemetry": "^0.5.2",
+    "d3": "^7.8.2",
     "ejs": "^3.1.7",
     "expand-home-dir": "0.0.3",
     "find-up": "^4.1.0",

@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+      "declaration": true,
+      "module": "ES6",
+      "target": "ES6",
+      "outDir": "../out",
+      "removeComments": true,
+      "noImplicitAny": true,
+      "inlineSources": true,
+      "inlineSourceMap": true,
+      "isolatedModules": false,
+      "allowSyntheticDefaultImports": true,
+      "allowUmdGlobalAccess": true, // For D3.js
+      "moduleResolution": "node",
+      "experimentalDecorators": true,
+      "strictNullChecks": true,
+      "alwaysStrict": true,
+      "composite": true,
+      "rootDir": "../..",
+      "lib": ["ES6", "DOM"]
+  },
+  "include": [
+      "./*.ts"
+  ],
+  "exclude": []
+}
