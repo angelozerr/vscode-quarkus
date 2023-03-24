@@ -1,13 +1,20 @@
-import { commands, ConfigurationTarget, ExtensionContext, window, workspace } from 'vscode';
-import { DidChangeConfigurationNotification, LanguageClientOptions } from 'vscode-languageclient';
+import { commands, ConfigurationTarget, Disposable, ExtensionContext, Position, TextDocument, window, workspace } from 'vscode';
+import { DidChangeConfigurationNotification, LanguageClientOptions, RequestType, TextDocumentIdentifier, Position as LspPosition } from 'vscode-languageclient';
 import { LanguageClient } from 'vscode-languageclient/node';
 import { JavaExtensionAPI } from '../../extension';
 import { QuteClientCommandConstants } from '../commands/commandConstants';
 import { registerQuteLSDependentCommands, registerVSCodeQuteCommands, synchronizeQuteValidationButton } from '../commands/registerCommands';
+import { activateAutoInsertion } from './autoInsertion';
 import { prepareExecutable } from './quteServerStarter';
 import { resolveRequirements } from './requirements';
 import { QuteSettings } from './settings';
 
+export interface Runtime {
+	TextDecoder: { new(encoding?: string): { decode(buffer: ArrayBuffer): string } };
+	readonly timer: {
+		setTimeout(callback: (...args: any[]) => void, ms: number, ...args: any[]): Disposable;
+	};
+}
 
 export async function connectToQuteLS(context: ExtensionContext, api: JavaExtensionAPI): Promise<LanguageClient> {
   registerVSCodeQuteCommands(context);
@@ -89,6 +96,8 @@ export async function connectToQuteLS(context: ExtensionContext, api: JavaExtens
   bindQuteRequest('qute/java/diagnostics');
   bindQuteRequest('qute/java/documentLink');
   bindQuteNotification('qute/dataModelChanged');
+
+  context.subscriptions.push(registerAutoInsertionrequest(quteLanguageClient));
 
   registerQuteLSDependentCommands(context, quteLanguageClient);
   // Refresh the Qute context when editor tab has the focus
@@ -203,4 +212,36 @@ async function showQuteValidationPopUp(context: ExtensionContext) {
    */
 export async function setQuteValidationEnabledContext() {
   await commands.executeCommand('setContext', 'editorQuteValidationEnabled', workspace.getConfiguration().get(QuteSettings.QUTE_VALIDATION_ENABLED));
+}
+
+interface AutoInsertParams {
+	/**
+	 * The auto insert kind
+	 */
+	kind: 'autoQuote' | 'autoClose';
+	/**
+	 * The text document.
+	 */
+	textDocument: TextDocumentIdentifier;
+	/**
+	 * The position inside the text document.
+	 */
+	position: LspPosition;
+}
+
+namespace AutoInsertRequest {
+	export const type: RequestType<AutoInsertParams, string, any> = new RequestType('qute/autoInsert');
+}
+
+function registerAutoInsertionrequest(client : LanguageClient) : Disposable{
+  const insertRequestor = (kind: 'autoQuote' | 'autoClose', document: TextDocument, position: Position): Promise<string> => {
+		const param: AutoInsertParams = {
+			kind,
+			textDocument: client.code2ProtocolConverter.asTextDocumentIdentifier(document),
+			position: client.code2ProtocolConverter.asPosition(position)
+		};
+		return client.sendRequest(AutoInsertRequest.type, param);
+	};
+
+	return activateAutoInsertion(insertRequestor);
 }
