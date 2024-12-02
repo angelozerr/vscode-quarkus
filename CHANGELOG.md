@@ -6,43 +6,24 @@
 
 - Support for multiple Qute template root. See [#861](https://github.com/redhat-developer/vscode-quarkus/pull/861).
 - Data model template matcher support. See [quarkus-ls#1021](https://github.com/redhat-developer/quarkus-ls/pull/1021).
-- Proper fix for comments in TemplateExtension quickfix test. See [quarkus-ls#1020](https://github.com/redhat-developer/quarkus-ls/pull/1020).
 - Add completion support for quarkus.langchain4j.ollama.embedding-model.model-id. See [quarkus-ls#1014](https://github.com/redhat-developer/quarkus-ls/issues/1014).
-- feat : support multiple template root paths.. See [quarkus-ls#1005](https://github.com/redhat-developer/quarkus-ls/pull/1005).
-- Provide property validator extension API. See [lsp4mp#460](https://github.com/eclipse/lsp4mp/pull/460).
+- Roq DataMapping support. See [quarkus-ls#1017](https://github.com/redhat-developer/quarkus-ls/pull/1017).
 
 ### Bug Fixes
 
-- false positive error with section name which contains underscore. See [quarkus-ls#1028](https://github.com/redhat-developer/quarkus-ls/pull/1028).
-- Qute expression escape support.. See [quarkus-ls#1024](https://github.com/redhat-developer/quarkus-ls/pull/1024).
-- false positive error with section name which contains number. See [quarkus-ls#1022](https://github.com/redhat-developer/quarkus-ls/pull/1022).
-- Fix the qute.jdt tests. See [quarkus-ls#1019](https://github.com/redhat-developer/quarkus-ls/pull/1019).
-- Support TemplateExtension matchNames. See [quarkus-ls#1013](https://github.com/redhat-developer/quarkus-ls/issues/1013).
-- False-positive error on let-defined variable. See [quarkus-ls#993](https://github.com/redhat-developer/quarkus-ls/issues/993).
-- Qute validation fails on `{config:property}` if property contains is a string. See [quarkus-ls#933](https://github.com/redhat-developer/quarkus-ls/issues/933).
-- Escape sequence \{ in Qute is not supported. See [quarkus-ls#897](https://github.com/redhat-developer/quarkus-ls/issues/897).
+- Escape sequence \{ in Qute is not supported. See [#897](https://github.com/redhat-developer/quarkus-ls/issues/897).
+- False-positive error with section name which contains underscore. See [#1028](https://github.com/redhat-developer/quarkus-ls/pull/1028).
+- False-positive error with section name which contains number. See [#1022](https://github.com/redhat-developer/quarkus-ls/pull/1022).
+- False-positive error on let-defined variable. See [#993](https://github.com/redhat-developer/quarkus-ls/issues/993).
+- Fix the qute.jdt tests. See [#1019](https://github.com/redhat-developer/quarkus-ls/pull/1019).
+- Support TemplateExtension matchNames. See [#1013](https://github.com/redhat-developer/quarkus-ls/issues/1013).
+- Qute validation fails on `{config:property}` if property contains is a string. See [#933](https://github.com/redhat-developer/quarkus-ls/issues/933).
 - Cannot publish to OpenVSX due to out of date NodeJS. See [vscode-microprofile#303](https://github.com/redhat-developer/vscode-microprofile/issues/303).
-- Enum support in AnnotationUtils. See [lsp4mp#468](https://github.com/eclipse/lsp4mp/pull/468).
-- Codelens for REST endpoints should resolve variable references. See [lsp4mp#467](https://github.com/eclipse/lsp4mp/pull/467).
-- Check that document is not out of date when getText is consumed. See [lsp4mp#466](https://github.com/eclipse/lsp4mp/pull/466).
-- Prevent duplicate properties when generating them. See [lsp4mp#465](https://github.com/eclipse/lsp4mp/pull/465).
-- Split register completion options for Java / Properties. See [lsp4mp#464](https://github.com/eclipse/lsp4mp/pull/464).
-- Prevent error on empty name symbol.. See [lsp4mp#462](https://github.com/eclipse/lsp4mp/pull/462).
 
 ### Build
 
-- chore: bump to 0.21.0. See [quarkus-ls#1018](https://github.com/redhat-developer/quarkus-ls/pull/1018).
-
-### Other
-
-- Roq DataMapping support. See [quarkus-ls#1017](https://github.com/redhat-developer/quarkus-ls/pull/1017).
-- Update date to 22 october. See [vscode-microprofile#312](https://github.com/redhat-developer/vscode-microprofile/pull/312).
-- chore: CHANGELOG for 0.13.0. See [vscode-microprofile#307](https://github.com/redhat-developer/vscode-microprofile/pull/307).
-- Upversion to 0.13.0. See [vscode-microprofile#305](https://github.com/redhat-developer/vscode-microprofile/pull/305).
 - Bump webpack from 5.94.0 to 5.95.0. See [vscode-microprofile#296](https://github.com/redhat-developer/vscode-microprofile/pull/296).
 - Update vscode-redhat-telemetry to 0.9.0.. See [vscode-microprofile#293](https://github.com/redhat-developer/vscode-microprofile/pull/293).
-- Update date to 22 october. See [lsp4mp#472](https://github.com/eclipse/lsp4mp/pull/472).
-- chore: CHANGELOG for 0.13.0. See [lsp4mp#469](https://github.com/eclipse/lsp4mp/pull/469).
 
 ## [1.19.0](https://github.com/redhat-developer/vscode-quarkus/milestone/22?closed=1) (October 22, 2024)
 
