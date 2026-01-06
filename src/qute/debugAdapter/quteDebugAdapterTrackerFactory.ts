@@ -1,4 +1,9 @@
 import * as vscode from 'vscode';
+import { handleServerRequest } from './quteServerRequestHandler';
+
+/* ============================================================
+ * Trace infrastructure
+ * ============================================================ */
 
 interface ResponsePromise {
     method: string;
@@ -24,10 +29,14 @@ let trace = Trace.Off;
 let outputChannel: vscode.LogOutputChannel | null = null;
 const responsePromises: Map<string | number, ResponsePromise> = new Map();
 
+/* ============================================================
+ * Tracker Factory
+ * ============================================================ */
+
 export class QuteDebugAdapterTrackerFactory implements vscode.DebugAdapterTrackerFactory {
 
     constructor() {
-        // Watch configuration changes to update trace dynamically
+        // Watch configuration changes to update trace level dynamically
         vscode.workspace.onDidChangeConfiguration(event => {
             if (event.affectsConfiguration("qute.trace.debug")) {
                 updateTraceLevel();
@@ -45,6 +54,7 @@ export class QuteDebugAdapterTrackerFactory implements vscode.DebugAdapterTracke
 
         return {
             onWillReceiveMessage: (message) => {
+                // client -> server requests
                 if (message.type === 'request') {
                     responsePromises.set(message.seq, { method: message.command, timerStart: Date.now() });
                     traceSendingRequest(message);
@@ -52,10 +62,14 @@ export class QuteDebugAdapterTrackerFactory implements vscode.DebugAdapterTracke
             },
 
             onDidSendMessage: (message) => {
+                // server -> client responses or events
                 if (message.type === 'response') {
                     handleResponse(message);
                 } else if (message.type === 'event') {
                     traceReceivedNotification(message);
+                } else if (message.type === 'request') {
+                    // handle custom server -> client requests (e.g., qute/resolveJavaSource)
+                    handleServerRequest(session, message);
                 }
             },
 
@@ -74,9 +88,10 @@ export class QuteDebugAdapterTrackerFactory implements vscode.DebugAdapterTracke
     }
 }
 
-/**
- * Update trace level from current settings.
- */
+/* ============================================================
+ * Trace helpers
+ * ============================================================ */
+
 function updateTraceLevel(init = false) {
     const config = vscode.workspace.getConfiguration("qute");
     const traceSetting = config.get<string>("trace.debug", "off")!;
@@ -106,9 +121,9 @@ function traceReceivedNotification(message: any): void {
 
     let data: string | undefined = undefined;
     if (trace === Trace.Verbose) {
-        data =  message.body
-        ? `Params: ${stringifyTrace(message.body)}`
-        : 'No parameters provided.';
+        data = message.body
+            ? `Params: ${stringifyTrace(message.body)}`
+            : 'No parameters provided.';
     }
     showTrace(`Received notification '${message.event}'.`, data);
 }
